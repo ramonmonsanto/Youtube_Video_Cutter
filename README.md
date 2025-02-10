@@ -1,6 +1,8 @@
 # Youtube_Video_Cutter
 Thank you for downloading YouTube Video Cutter v1.0.
 
+Portable Version.
+
 This application allows you to download videos from various platforms (such as YouTube, Google Drive, Instagram, among others) and trim only the specific parts you need—so you don’t have to download the entire video (although you also have the option to download the complete video, choosing from different resolutions).
 
 Please read the following carefully!
