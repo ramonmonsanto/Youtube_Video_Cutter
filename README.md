@@ -9,10 +9,11 @@ Please read the following carefully!
 ![img](https://github.com/user-attachments/assets/46c75ff6-9ae2-4a4d-a238-650f93feadc3)
 
 
-Responsible Use:
+# Responsible Use:
 
 This software is provided for educational and personal use only. We do not endorse or promote downloading copyrighted content without proper permission from the rights holders.
 It is the user’s responsibility to ensure they have the necessary rights or permissions to download and use content from the platforms.
+
 Platform Terms of Use:
 
 Many websites (such as YouTube, Google Drive, Instagram, etc.) have policies and terms of service that prohibit downloading videos without explicit permission from the content creator or owner.
