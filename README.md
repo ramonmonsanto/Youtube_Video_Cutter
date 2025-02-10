@@ -69,3 +69,7 @@ Additional Notes:
 For URLs from Google Drive, the program automatically converts them into direct download links.
 Although the program was originally developed for YouTube, you can try it with other platforms. Results may vary depending on the source.
 The language of the interface can be changed between Spanish and English using the language selector at the top-right corner.
+
+**Performance Note:** Please note that the time required to download, cut, and process videos may vary depending on several factors, including the
+**computer’s processing power**, **internet speed**, as well as the **duration and quality of the video**. 
+Higher resolution videos or longer videos may take more time to download and process. If your computer or internet connection is slower, the process could be extended accordingly.
