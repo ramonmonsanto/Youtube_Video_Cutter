@@ -39,22 +39,31 @@ This program allows you to download videos from various platforms (such as YouTu
 Step 1: Load the Video
 
 Paste the URL of the video in the "Video URL" field.
+
 Click the "Load Video" button to extract the video information.
+
 Note: The program does not automatically detect the URL; you must click "Load Video" after pasting the URL.
 Step 2: Preview and Navigate
 
 Once the video is loaded, it will be displayed in the integrated video player.
+
 Use the timeline slider to navigate through the video. The timeline shows both the current playback time and the total duration.
 Step 3: Select the Clip
 
 Click the "Start Clip" button when you want to mark the beginning of the segment you wish to extract.
+
 Click the "End Clip" button to mark the end of the segment.
+
 The program will display the selected start and end times, so you know exactly which portion will be downloaded.
+
 Step 4: Download Options
 
 To download only the selected clip, click "Download Clip".
+
 To download the entire video, click "Download Full Video".
+
 Use the drop-down menus for playback resolution and download resolution to choose the desired quality.
+
 Additional Notes:
 
 For URLs from Google Drive, the program automatically converts them into direct download links.
