@@ -5,6 +5,10 @@ This application allows you to download videos from various platforms (such as Y
 
 Please read the following carefully!
 
+
+![img](https://github.com/user-attachments/assets/46c75ff6-9ae2-4a4d-a238-650f93feadc3)
+
+
 Responsible Use:
 
 This software is provided for educational and personal use only. We do not endorse or promote downloading copyrighted content without proper permission from the rights holders.
