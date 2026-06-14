@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcador 200 puntos — 2 equipos de 2</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #38bdf8;
+    --win: #22c55e;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.4rem;
+    margin: 8px 0 4px;
+  }
+  .meta {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .team {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px;
+    border: 2px solid transparent;
+    transition: border-color .2s;
+  }
+  .team.winner {
+    border-color: var(--win);
+    box-shadow: 0 0 0 3px rgba(34,197,94,.25);
+  }
+  .team-name {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .team-name:focus { outline: 1px dashed var(--muted); border-radius: 6px; }
+  .team-total {
+    text-align: center;
+    font-size: 2.6rem;
+    font-weight: 800;
+    margin: 6px 0 14px;
+    line-height: 1;
+  }
+  .team-total .of {
+    font-size: 1rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .player {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .player input.name {
+    flex: 1;
+    min-width: 0;
+    background: #0b1220;
+    border: 1px solid #334155;
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 0.95rem;
+  }
+  .player input.score {
+    width: 72px;
+    background: #0b1220;
+    border: 1px solid #334155;
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 1rem;
+    text-align: center;
+  }
+  input:focus { outline: none; border-color: var(--accent); }
+  .winner-banner {
+    text-align: center;
+    margin: 20px auto 0;
+    max-width: 760px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--win);
+    min-height: 1.4rem;
+  }
+  .controls {
+    text-align: center;
+    margin-top: 20px;
+  }
+  button {
+    background: var(--accent);
+    color: #0b1220;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  button:hover { opacity: .9; }
+  .progress {
+    height: 8px;
+    background: #0b1220;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .progress > div {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width .25s;
+  }
+  .team.winner .progress > div { background: var(--win); }
+  @media (max-width: 560px) {
+    .board { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <h1>Marcador a 200 puntos</h1>
+  <p class="meta">2 equipos · 2 jugadores cada uno · gana el primero en llegar a 200</p>
+
+  <div class="board" id="board"></div>
+
+  <div class="winner-banner" id="banner"></div>
+
+  <div class="controls">
+    <button id="reset">Reiniciar puntos</button>
+  </div>
+
+<script>
+  const META = 200;
+
+  const teams = [
+    { name: "Equipo 1", players: ["Jugador 1", "Jugador 2"] },
+    { name: "Equipo 2", players: ["Jugador 3", "Jugador 4"] },
+  ];
+
+  const board = document.getElementById("board");
+  const banner = document.getElementById("banner");
+
+  teams.forEach((team, ti) => {
+    const el = document.createElement("div");
+    el.className = "team";
+    el.dataset.team = ti;
+    el.innerHTML = `
+      <input class="team-name" value="${team.name}" aria-label="Nombre del equipo">
+      <div class="team-total"><span class="total">0</span><span class="of"> / ${META}</span></div>
+      <div class="progress"><div class="bar"></div></div>
+      ${team.players.map((p, pi) => `
+        <div class="player">
+          <input class="name" value="${p}" aria-label="Nombre del jugador">
+          <input class="score" type="number" inputmode="numeric" value="0"
+                 data-team="${ti}" data-player="${pi}" aria-label="Puntos">
+        </div>
+      `).join("")}
+    `;
+    board.appendChild(el);
+  });
+
+  function recalc() {
+    const totals = [];
+    document.querySelectorAll(".team").forEach((teamEl) => {
+      let total = 0;
+      teamEl.querySelectorAll(".score").forEach((s) => {
+        total += Number(s.value) || 0;
+      });
+      teamEl.querySelector(".total").textContent = total;
+      teamEl.querySelector(".bar").style.width =
+        Math.min(100, (total / META) * 100) + "%";
+      totals.push(total);
+    });
+
+    // Determinar ganador
+    document.querySelectorAll(".team").forEach((t) => t.classList.remove("winner"));
+    const reached = totals
+      .map((t, i) => ({ t, i }))
+      .filter((x) => x.t >= META)
+      .sort((a, b) => b.t - a.t);
+
+    if (reached.length) {
+      const top = reached[0].t;
+      const winners = reached.filter((x) => x.t === top).map((x) => x.i);
+      winners.forEach((i) =>
+        document.querySelectorAll(".team")[i].classList.add("winner")
+      );
+      const names = winners
+        .map((i) => document.querySelectorAll(".team-name")[i].value)
+        .join(" y ");
+      banner.textContent =
+        winners.length > 1
+          ? `¡Empate en ${top} puntos! 🏆`
+          : `🏆 ¡${names} gana con ${top} puntos!`;
+    } else {
+      banner.textContent = "";
+    }
+    save();
+  }
+
+  function save() {
+    const data = {
+      teamNames: [...document.querySelectorAll(".team-name")].map((e) => e.value),
+      playerNames: [...document.querySelectorAll(".name")].map((e) => e.value),
+      scores: [...document.querySelectorAll(".score")].map((e) => e.value),
+    };
+    try { localStorage.setItem("marcador200", JSON.stringify(data)); } catch (e) {}
+  }
+
+  function load() {
+    try {
+      const data = JSON.parse(localStorage.getItem("marcador200"));
+      if (!data) return;
+      const tn = document.querySelectorAll(".team-name");
+      const pn = document.querySelectorAll(".name");
+      const sc = document.querySelectorAll(".score");
+      data.teamNames?.forEach((v, i) => { if (tn[i]) tn[i].value = v; });
+      data.playerNames?.forEach((v, i) => { if (pn[i]) pn[i].value = v; });
+      data.scores?.forEach((v, i) => { if (sc[i]) sc[i].value = v; });
+    } catch (e) {}
+  }
+
+  // La suma se corrige automáticamente al editar cualquier campo
+  board.addEventListener("input", recalc);
+
+  document.getElementById("reset").addEventListener("click", () => {
+    document.querySelectorAll(".score").forEach((s) => (s.value = 0));
+    recalc();
+  });
+
+  load();
+  recalc();
+</script>
+</body>
+</html>
