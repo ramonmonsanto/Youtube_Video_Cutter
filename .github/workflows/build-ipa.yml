@@ -1,0 +1,87 @@
+name: Build iOS IPA
+
+# Compila un .ipa SIN firmar (para instalar con AltStore / SideStore).
+# Usa un runner macOS de GitHub, que trae Xcode.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - claude/multi-team-scoring-app-slexoi
+    paths:
+      - "ios/**"
+      - "index.html"
+      - "manifest.json"
+      - "sw.js"
+      - "icon-*.png"
+      - ".github/workflows/build-ipa.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sincronizar assets web -> ios
+        run: |
+          mkdir -p ios/App/www
+          cp index.html manifest.json sw.js icon-192.png icon-512.png ios/App/www/
+
+      - name: Instalar XcodeGen
+        run: brew install xcodegen
+
+      - name: Generar proyecto Xcode
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Compilar app (sin firmar)
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -project Marcador200.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Empaquetar .ipa
+        working-directory: ios
+        run: |
+          APP=$(find build/Build/Products/Release-iphoneos -maxdepth 1 -name "*.app" | head -1)
+          echo "App: $APP"
+          rm -rf Payload
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -r ../Marcador200.ipa Payload >/dev/null
+          ls -la ../Marcador200.ipa
+
+      - name: Subir .ipa (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Marcador200-ipa
+          path: Marcador200.ipa
+          if-no-files-found: error
+
+      - name: Publicar Release con el .ipa
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ios-latest
+          name: Marcador 200 — iPhone (AltStore)
+          body: |
+            **Marcador200.ipa** — para instalar en iPhone con AltStore o SideStore.
+
+            Pasos:
+            1. Instala AltStore (altstore.io) en tu PC/Mac y AltStore en el iPhone con tu Apple ID gratis.
+            2. Descarga este Marcador200.ipa al iPhone.
+            3. Ábrelo con AltStore -> "+" -> elige el .ipa. AltStore lo firma e instala.
+
+            Nota: con Apple ID gratis la app caduca a los 7 dias; AltStore la renueva al refrescarla.
+          files: Marcador200.ipa
+          make_latest: false
