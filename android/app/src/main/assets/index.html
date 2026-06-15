@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marcador 200 puntos — 2 equipos de 2</title>
+<title>Marcador 200 puntos — pareja vs pareja</title>
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
@@ -44,7 +44,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    max-width: 760px;
+    max-width: 820px;
     margin: 0 auto;
   }
   .team {
@@ -69,69 +69,30 @@
     margin-bottom: 4px;
   }
   .team-name:focus { outline: 1px dashed var(--muted); border-radius: 6px; }
+
+  /* Marcador grande de la pareja (editable directamente para corregir) */
   .team-total {
-    text-align: center;
-    font-size: 2.6rem;
-    font-weight: 800;
-    margin: 6px 0 14px;
-    line-height: 1;
-  }
-  .team-total .of {
-    font-size: 1rem;
-    color: var(--muted);
-    font-weight: 500;
-  }
-  .player {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    margin: 6px 0 12px;
   }
-  .player input.name {
-    flex: 1;
-    min-width: 0;
-    background: #0b1220;
-    border: 1px solid #334155;
-    color: var(--text);
-    border-radius: 8px;
-    padding: 8px;
-    font-size: 0.95rem;
-  }
-  .player input.score {
-    width: 72px;
-    background: #0b1220;
-    border: 1px solid #334155;
-    color: var(--text);
-    border-radius: 8px;
-    padding: 8px;
-    font-size: 1rem;
-    text-align: center;
-  }
-  input:focus { outline: none; border-color: var(--accent); }
-  .winner-banner {
-    text-align: center;
-    margin: 20px auto 0;
-    max-width: 760px;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--win);
-    min-height: 1.4rem;
-  }
-  .controls {
-    text-align: center;
-    margin-top: 20px;
-  }
-  button {
-    background: var(--accent);
-    color: #0b1220;
+  .team-total input.score {
+    width: 130px;
+    background: transparent;
     border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
+    border-bottom: 2px solid #334155;
+    color: var(--text);
+    font-size: 2.8rem;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1;
+    padding: 0;
   }
-  button:hover { opacity: .9; }
+  .team-total input.score:focus { outline: none; border-bottom-color: var(--accent); }
+  .team-total .of { font-size: 1rem; color: var(--muted); font-weight: 500; }
+
   .progress {
     height: 8px;
     background: #0b1220;
@@ -146,6 +107,67 @@
     transition: width .25s;
   }
   .team.winner .progress > div { background: var(--win); }
+
+  /* Sumar / restar los puntos de cada mano */
+  .add-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .add-row input {
+    flex: 1;
+    min-width: 0;
+    background: #0b1220;
+    border: 1px solid #334155;
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 1rem;
+    text-align: center;
+  }
+  .add-row input:focus { outline: none; border-color: var(--accent); }
+  .add-row button {
+    border: none;
+    border-radius: 8px;
+    padding: 0 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-add { background: var(--accent); color: #0b1220; }
+  .btn-sub { background: #334155; color: var(--text); }
+
+  .players { display: flex; flex-direction: column; gap: 8px; }
+  .players .name {
+    background: #0b1220;
+    border: 1px solid #334155;
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 0.95rem;
+  }
+  .players .name:focus { outline: none; border-color: var(--accent); }
+
+  .winner-banner {
+    text-align: center;
+    margin: 20px auto 0;
+    max-width: 820px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--win);
+    min-height: 1.4rem;
+  }
+  .controls { text-align: center; margin-top: 20px; }
+  .controls button {
+    background: var(--accent);
+    color: #0b1220;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
   @media (max-width: 560px) {
     .board { grid-template-columns: 1fr; }
   }
@@ -153,7 +175,7 @@
 </head>
 <body>
   <h1>Marcador a 200 puntos</h1>
-  <p class="meta">2 equipos · 2 jugadores cada uno · gana el primero en llegar a 200</p>
+  <p class="meta">Pareja vs pareja · gana la primera en llegar a 200</p>
 
   <div class="board" id="board"></div>
 
@@ -167,8 +189,8 @@
   const META = 200;
 
   const teams = [
-    { name: "Equipo 1", players: ["Jugador 1", "Jugador 2"] },
-    { name: "Equipo 2", players: ["Jugador 3", "Jugador 4"] },
+    { name: "Pareja 1", players: ["Jugador 1", "Jugador 2"] },
+    { name: "Pareja 2", players: ["Jugador 3", "Jugador 4"] },
   ];
 
   const board = document.getElementById("board");
@@ -179,16 +201,24 @@
     el.className = "team";
     el.dataset.team = ti;
     el.innerHTML = `
-      <input class="team-name" value="${team.name}" aria-label="Nombre del equipo">
-      <div class="team-total"><span class="total">0</span><span class="of"> / ${META}</span></div>
+      <input class="team-name" value="${team.name}" aria-label="Nombre de la pareja">
+      <div class="team-total">
+        <input class="score" type="number" inputmode="numeric" value="0"
+               data-team="${ti}" aria-label="Puntos de la pareja">
+        <span class="of">/ ${META}</span>
+      </div>
       <div class="progress"><div class="bar"></div></div>
-      ${team.players.map((p, pi) => `
-        <div class="player">
+      <div class="add-row">
+        <input class="add-input" type="number" inputmode="numeric"
+               placeholder="puntos de la mano" aria-label="Puntos a sumar">
+        <button class="btn-add" data-team="${ti}" type="button">+ Sumar</button>
+        <button class="btn-sub" data-team="${ti}" type="button">−</button>
+      </div>
+      <div class="players">
+        ${team.players.map((p) => `
           <input class="name" value="${p}" aria-label="Nombre del jugador">
-          <input class="score" type="number" inputmode="numeric" value="0"
-                 data-team="${ti}" data-player="${pi}" aria-label="Puntos">
-        </div>
-      `).join("")}
+        `).join("")}
+      </div>
     `;
     board.appendChild(el);
   });
@@ -196,13 +226,9 @@
   function recalc() {
     const totals = [];
     document.querySelectorAll(".team").forEach((teamEl) => {
-      let total = 0;
-      teamEl.querySelectorAll(".score").forEach((s) => {
-        total += Number(s.value) || 0;
-      });
-      teamEl.querySelector(".total").textContent = total;
+      const total = Number(teamEl.querySelector(".score").value) || 0;
       teamEl.querySelector(".bar").style.width =
-        Math.min(100, (total / META) * 100) + "%";
+        Math.min(100, Math.max(0, (total / META) * 100)) + "%";
       totals.push(total);
     });
 
@@ -232,6 +258,46 @@
     save();
   }
 
+  // Sumar / restar los puntos de la mano al marcador de la pareja
+  function applyRound(ti, sign) {
+    const teamEl = document.querySelectorAll(".team")[ti];
+    const addInput = teamEl.querySelector(".add-input");
+    const scoreInput = teamEl.querySelector(".score");
+    const add = Number(addInput.value);
+    if (!add) return;
+    scoreInput.value = (Number(scoreInput.value) || 0) + sign * add;
+    addInput.value = "";
+    recalc();
+  }
+
+  board.addEventListener("click", (e) => {
+    if (e.target.classList.contains("btn-add"))
+      applyRound(Number(e.target.dataset.team), 1);
+    if (e.target.classList.contains("btn-sub"))
+      applyRound(Number(e.target.dataset.team), -1);
+  });
+
+  // Enter en el campo de la mano = sumar
+  board.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.classList.contains("add-input")) {
+      e.preventDefault();
+      applyRound(Number(e.target.dataset.team ??
+        e.target.closest(".team").dataset.team), 1);
+    }
+  });
+
+  // La suma se corrige automáticamente al editar el marcador o los nombres
+  board.addEventListener("input", (e) => {
+    if (e.target.classList.contains("add-input")) return;
+    recalc();
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    document.querySelectorAll(".score").forEach((s) => (s.value = 0));
+    document.querySelectorAll(".add-input").forEach((s) => (s.value = ""));
+    recalc();
+  });
+
   function save() {
     const data = {
       teamNames: [...document.querySelectorAll(".team-name")].map((e) => e.value),
@@ -253,14 +319,6 @@
       data.scores?.forEach((v, i) => { if (sc[i]) sc[i].value = v; });
     } catch (e) {}
   }
-
-  // La suma se corrige automáticamente al editar cualquier campo
-  board.addEventListener("input", recalc);
-
-  document.getElementById("reset").addEventListener("click", () => {
-    document.querySelectorAll(".score").forEach((s) => (s.value = 0));
-    recalc();
-  });
 
   load();
   recalc();
