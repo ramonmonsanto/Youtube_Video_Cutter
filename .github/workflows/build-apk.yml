@@ -15,6 +15,9 @@ on:
       - "icon-*.png"
       - ".github/workflows/build-apk.yml"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -54,3 +57,19 @@ jobs:
           name: Marcador200-release-apk
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
+
+      - name: Renombrar APK
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk Marcador200.apk
+
+      - name: Publicar Release con link directo al APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: Marcador 200 — última versión
+          body: |
+            APK instalable del Apunte de Dominó (a 200 puntos).
+            Descarga directa: **Marcador200.apk** (abajo en Assets).
+            Al instalar, Play Protect avisará → "Instalar de todas formas" (es normal en apps fuera de la tienda).
+          files: Marcador200.apk
+          make_latest: true
