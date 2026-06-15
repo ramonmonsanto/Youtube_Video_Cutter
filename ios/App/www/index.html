@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apunte de Dominó — a 200 puntos</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Apunte 200">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #38bdf8;
+    --win: #22c55e;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --line: #334155;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 14px;
+  }
+  h1 { text-align: center; font-size: 1.25rem; margin: 6px 0 14px; }
+
+  .wrap { max-width: 560px; margin: 0 auto; }
+
+  /* Cabecera de las dos parejas */
+  .heads {
+    display: grid;
+    grid-template-columns: 44px 1fr 1fr;
+    gap: 8px;
+    align-items: end;
+    margin-bottom: 8px;
+  }
+  .heads .corner { }
+  .head {
+    background: var(--card);
+    border-radius: 12px 12px 0 0;
+    padding: 10px 6px 8px;
+    text-align: center;
+    border: 1px solid var(--line);
+    border-bottom: none;
+  }
+  .head.winner { background: #14361f; }
+  .head input.team {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  .head input.team:focus { outline: 1px dashed var(--muted); border-radius: 6px; }
+  .partidas {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: .8rem;
+  }
+  .partidas b { color: var(--text); font-size: 1rem; }
+  .partidas button {
+    width: 24px; height: 24px;
+    border: 1px solid var(--line);
+    background: #0b1220;
+    color: var(--text);
+    border-radius: 6px;
+    font-size: 1rem; line-height: 1;
+    cursor: pointer;
+  }
+
+  /* Tabla de manos */
+  table { width: 100%; border-collapse: collapse; }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 0;
+    text-align: center;
+  }
+  th { background: var(--card); font-size: .75rem; color: var(--muted); padding: 4px 0; }
+  td.num { width: 44px; color: var(--muted); font-size: .85rem; }
+  td .cell {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 1.15rem;
+    text-align: center;
+    padding: 12px 4px;
+  }
+  td .cell:focus { outline: none; background: #0b1220; }
+  td.del { width: 36px; }
+  td.del button {
+    width: 28px; height: 28px;
+    border: none; background: transparent;
+    color: var(--danger);
+    font-size: 1.2rem; cursor: pointer;
+  }
+
+  /* Totales */
+  tr.totals td { background: var(--card); padding: 10px 4px; }
+  tr.totals .big { font-size: 1.6rem; font-weight: 800; }
+  tr.totals .big.winner { color: var(--win); }
+  tr.totals .of { color: var(--muted); font-size: .8rem; }
+  tr.totals .label { color: var(--muted); font-size: .75rem; }
+
+  .add {
+    width: 100%;
+    margin: 12px 0;
+    background: var(--accent);
+    color: #0b1220;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .banner {
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--win);
+    min-height: 1.4rem;
+    margin: 6px 0;
+  }
+  .reset {
+    display: block;
+    margin: 8px auto 0;
+    background: #334155;
+    color: var(--text);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Apunte de Dominó · a 200</h1>
+
+  <div class="heads">
+    <div class="corner"></div>
+    <div class="head" id="head0">
+      <input class="team" data-team="0" value="Casa" aria-label="Nombre pareja 1">
+      <div class="partidas">
+        <button data-team="0" data-d="-1" type="button">−</button>
+        <span>partidas <b id="g0">0</b></span>
+        <button data-team="0" data-d="1" type="button">+</button>
+      </div>
+    </div>
+    <div class="head" id="head1">
+      <input class="team" data-team="1" value="Visita" aria-label="Nombre pareja 2">
+      <div class="partidas">
+        <button data-team="1" data-d="-1" type="button">−</button>
+        <span>partidas <b id="g1">0</b></span>
+        <button data-team="1" data-d="1" type="button">+</button>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Mano</th><th id="th0">Casa</th><th id="th1">Visita</th><th></th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+    <tfoot>
+      <tr class="totals">
+        <td class="label">Total</td>
+        <td><div class="big" id="t0">0</div><div class="of">/ 200</div></td>
+        <td><div class="big" id="t1">0</div><div class="of">/ 200</div></td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <button class="add" id="add" type="button">+ Agregar mano</button>
+  <div class="banner" id="banner"></div>
+  <button class="reset" id="reset" type="button">Reiniciar manos</button>
+</div>
+
+<script>
+  const META = 200;
+  const KEY = "apunte200";
+
+  let state = {
+    names: ["Casa", "Visita"],
+    partidas: [0, 0],
+    rounds: [],            // [[ptsCasa, ptsVisita], ...]
+  };
+
+  // ---- persistencia ----
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function load() {
+    try {
+      const d = JSON.parse(localStorage.getItem(KEY));
+      if (d && Array.isArray(d.rounds)) state = {
+        names: d.names || ["Casa", "Visita"],
+        partidas: d.partidas || [0, 0],
+        rounds: d.rounds,
+      };
+    } catch (e) {}
+  }
+
+  const rowsEl = document.getElementById("rows");
+  const banner = document.getElementById("banner");
+
+  function totals() {
+    return state.rounds.reduce(
+      (a, r) => [a[0] + (Number(r[0]) || 0), a[1] + (Number(r[1]) || 0)],
+      [0, 0]
+    );
+  }
+
+  // Recalcula totales y ganador sin redibujar la tabla (no pierde el foco)
+  function refreshTotals() {
+    const [t0, t1] = totals();
+    const big0 = document.getElementById("t0");
+    const big1 = document.getElementById("t1");
+    big0.textContent = t0;
+    big1.textContent = t1;
+
+    const w0 = t0 >= META && t0 >= t1;
+    const w1 = t1 >= META && t1 >= t0;
+    big0.classList.toggle("winner", w0);
+    big1.classList.toggle("winner", w1);
+    document.getElementById("head0").classList.toggle("winner", w0);
+    document.getElementById("head1").classList.toggle("winner", w1);
+
+    if (t0 >= META || t1 >= META) {
+      if (t0 === t1) banner.textContent = `¡Empate en ${t0}! 🏆`;
+      else {
+        const i = t0 > t1 ? 0 : 1;
+        banner.textContent = `🏆 ¡${state.names[i]} gana con ${Math.max(t0, t1)}!`;
+      }
+    } else banner.textContent = "";
+    save();
+  }
+
+  // Dibuja todas las filas de manos
+  function renderRows() {
+    rowsEl.innerHTML = state.rounds.map((r, i) => `
+      <tr>
+        <td class="num">${i + 1}</td>
+        <td><input class="cell" type="number" inputmode="numeric"
+             data-i="${i}" data-c="0" value="${r[0] ?? ""}" aria-label="Puntos ${state.names[0]} mano ${i + 1}"></td>
+        <td><input class="cell" type="number" inputmode="numeric"
+             data-i="${i}" data-c="1" value="${r[1] ?? ""}" aria-label="Puntos ${state.names[1]} mano ${i + 1}"></td>
+        <td class="del"><button data-del="${i}" type="button" aria-label="Borrar mano">✕</button></td>
+      </tr>
+    `).join("");
+    refreshTotals();
+  }
+
+  function renderHeads() {
+    document.querySelectorAll(".team").forEach((el, i) => (el.value = state.names[i]));
+    document.getElementById("th0").textContent = state.names[0];
+    document.getElementById("th1").textContent = state.names[1];
+    document.getElementById("g0").textContent = state.partidas[0];
+    document.getElementById("g1").textContent = state.partidas[1];
+  }
+
+  // Editar una celda de puntos -> actualiza total al instante
+  rowsEl.addEventListener("input", (e) => {
+    if (!e.target.classList.contains("cell")) return;
+    const i = +e.target.dataset.i, c = +e.target.dataset.c;
+    state.rounds[i][c] = e.target.value === "" ? 0 : Number(e.target.value);
+    refreshTotals();
+  });
+
+  // Borrar una mano
+  rowsEl.addEventListener("click", (e) => {
+    const d = e.target.dataset.del;
+    if (d === undefined) return;
+    state.rounds.splice(+d, 1);
+    renderRows();
+  });
+
+  // Agregar mano nueva y enfocar la primera celda
+  document.getElementById("add").addEventListener("click", () => {
+    state.rounds.push([0, 0]);
+    renderRows();
+    const last = rowsEl.querySelector("tr:last-child .cell");
+    if (last) { last.focus(); last.select(); }
+  });
+
+  // Nombres de las parejas
+  document.querySelectorAll(".team").forEach((el) => {
+    el.addEventListener("input", () => {
+      state.names[+el.dataset.team] = el.value || (el.dataset.team === "0" ? "Casa" : "Visita");
+      document.getElementById("th" + el.dataset.team).textContent = el.value;
+      save();
+    });
+  });
+
+  // Contador de partidas ganadas
+  document.querySelectorAll(".partidas button").forEach((b) => {
+    b.addEventListener("click", () => {
+      const t = +b.dataset.team;
+      state.partidas[t] = Math.max(0, state.partidas[t] + Number(b.dataset.d));
+      document.getElementById("g" + t).textContent = state.partidas[t];
+      save();
+    });
+  });
+
+  // Reiniciar solo las manos (mantiene nombres y partidas)
+  document.getElementById("reset").addEventListener("click", () => {
+    if (state.rounds.length && !confirm("¿Borrar todas las manos y empezar de cero?")) return;
+    state.rounds = [];
+    renderRows();
+  });
+
+  // ---- arranque ----
+  load();
+  renderHeads();
+  if (state.rounds.length === 0) state.rounds.push([0, 0]); // empieza con una mano lista
+  renderRows();
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () =>
+      navigator.serviceWorker.register("./sw.js").catch(() => {})
+    );
+  }
+</script>
+</body>
+</html>
